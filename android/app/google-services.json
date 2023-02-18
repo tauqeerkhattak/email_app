@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "698277792074",
+    "project_id": "mania-email",
+    "storage_bucket": "mania-email.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698277792074:android:8a30c27eb917a54b7c19b3",
+        "android_client_info": {
+          "package_name": "com.mania.email_client"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698277792074-e77erpdfo0rcfc7v2vsc8cenrk00mev5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDM5oNlNTSbTJxWKef9UxWHvo8jXdVOPb0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698277792074-e77erpdfo0rcfc7v2vsc8cenrk00mev5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

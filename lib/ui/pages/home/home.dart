@@ -1,10 +1,12 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:developer';
+
+import 'package:email_client/ui/common/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../common/app_button.dart';
+import '../../../models/messages_model.dart';
+import '../../common/app_drawer.dart';
 import '../../theme/app_theme.dart';
-import '../webview_page/webview_page.dart';
 import 'notifiers/home_page_notifier.dart';
 import 'notifiers/home_page_states.dart';
 
@@ -21,20 +23,12 @@ class Home extends ConsumerStatefulWidget {
 }
 
 class _HomeState extends ConsumerState<Home> {
-  void _onAddAccountPressed() {
-    ref.read(homeProvider.notifier).setLoading();
-    Navigator.push(
-      context,
-      CupertinoPageRoute(
-        builder: (context) => WebviewPage(
-          onAccessGranted: _onAccessGranted,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _onAccessGranted(String authCode) async {
-    await ref.read(homeProvider.notifier).saveAccessToken(authCode);
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      ref.read(homeProvider.notifier).loadEmails();
+    });
   }
 
   Widget _buildLoading() {
@@ -42,14 +36,7 @@ class _HomeState extends ConsumerState<Home> {
       builder: (context, ref, child) {
         final state = ref.watch(homeProvider);
         if (state is LoadingHomePageState) {
-          return Padding(
-            padding: const EdgeInsets.all(10),
-            child: CircularProgressIndicator.adaptive(
-              valueColor: AlwaysStoppedAnimation(
-                AppTheme.appColor(context).primary,
-              ),
-            ),
-          );
+          return const Loader();
         } else {
           return const SizedBox.shrink();
         }
@@ -60,22 +47,71 @@ class _HomeState extends ConsumerState<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        actions: [
-          _buildLoading(),
-        ],
+      appBar: _buildAppBar(context),
+      drawer: const AppDrawer(),
+      body: _buildBody(),
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0.0,
+      title: Text(
+        'Inbox',
+        style: TextStyle(
+          color: AppTheme.appColor(context).primary,
+        ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          AppButton(
-            onTap: _onAddAccountPressed,
-            label: 'Add account',
-          ),
-        ],
+      centerTitle: true,
+      leading: Builder(
+        builder: (context) {
+          return IconButton(
+            icon: Icon(
+              Icons.dehaze,
+              color: AppTheme.appColor(context).primary,
+            ),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          );
+        },
+      ),
+      actions: [
+        _buildLoading(),
+      ],
+    );
+  }
+
+  Widget _buildBody() {
+    final state = ref.watch(homeProvider);
+    if (state is LoadedHomePageState) {
+      final messages = ref.read(homeProvider.notifier).messages;
+      return ListView(
+        children: messages.map((message) {
+          return _buildMessageItem(message);
+        }).toList(),
+      );
+    } else if (state is NoAccountHomePageState) {
+      return const Center(
+        child: Text('No account exist, please add an account!'),
+      );
+    } else {
+      return const Loader();
+    }
+  }
+
+  Widget _buildMessageItem(Messages message) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        elevation: 10.0,
+        child: ListTile(
+          onTap: () {
+            log('THREAD ID: ${message.threadId}');
+          },
+          title: Text('ID: ${message.id}'),
+        ),
       ),
     );
   }

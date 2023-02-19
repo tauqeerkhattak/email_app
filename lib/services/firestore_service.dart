@@ -33,14 +33,29 @@ class FirebaseService extends BaseService {
     }
   }
 
-  Future<void> saveToken(AccessToken token) async {
+  Future<void> saveAccount({required AccessToken token}) async {
     await safeFunction(() async {
-      await _db
+      final doc = _db
           .collection('users')
           .doc(_auth.currentUser!.uid)
           .collection('tokens')
-          .add(token.toJson());
+          .doc();
+      token.uid = doc.id;
+      await doc.set(token.toJson());
     });
+  }
+
+  Future<void> updateToken(AccessToken token) async {
+    await safeFunction(
+      () async {
+        await _db
+            .collection('users')
+            .doc(_auth.currentUser!.uid)
+            .collection('tokens')
+            .doc(token.uid)
+            .update(token.toJson());
+      },
+    );
   }
 
   Future<AccessToken?> getAccessToken() async {

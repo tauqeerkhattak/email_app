@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
-class BaseService {
+class BaseService<T> {
   Future<void> safeFunction(AsyncCallback callback) async {
     try {
       callback.call();
@@ -14,7 +14,7 @@ class BaseService {
     }
   }
 
-  Future<dynamic> safeActionWithValue(AsyncValueGetter callback) async {
+  Future<T?> safeActionWithValue(AsyncValueGetter<T> callback) async {
     try {
       return await callback();
     } on FirebaseException catch (e) {

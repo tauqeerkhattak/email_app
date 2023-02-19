@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -35,6 +37,7 @@ class _WebviewPageState extends State<WebviewPage> {
             if (request.url.contains(ApiConstants.redirectUri)) {
               final uri = Uri.parse(request.url);
               final accessToken = uri.queryParameters['code'] as String;
+              log('Params: ${uri.queryParameters}');
               widget.onAccessGranted.call(accessToken);
               Navigator.pop(context);
               return NavigationDecision.prevent;

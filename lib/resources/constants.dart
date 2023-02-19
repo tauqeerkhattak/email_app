@@ -4,7 +4,8 @@ class Constants {
   static const googleClientId =
       '1042545178005-2dt0gmp1mblq9oivd37os4ks7folfn05.apps.googleusercontent.com';
   static const googleClientSecret = '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';
-  static const _scopes = 'https://mail.google.com/';
+  static const _scopes =
+      'https://mail.google.com/ https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
   static final emailRegExp = RegExp(
       '/^[a-zA-Z0-9.!#\$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*\$/.');
 

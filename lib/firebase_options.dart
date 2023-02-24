@@ -67,7 +67,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '698277792074',
     projectId: 'mania-email',
     storageBucket: 'mania-email.appspot.com',
-    iosClientId: '698277792074-lcjk5aivr2nvv78a8tqcbh6r98lq3o09.apps.googleusercontent.com',
+    iosClientId:
+        '698277792074-lcjk5aivr2nvv78a8tqcbh6r98lq3o09.apps.googleusercontent.com',
     iosBundleId: 'com.mania.emailClient',
   );
 
@@ -77,7 +78,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '698277792074',
     projectId: 'mania-email',
     storageBucket: 'mania-email.appspot.com',
-    iosClientId: '698277792074-lcjk5aivr2nvv78a8tqcbh6r98lq3o09.apps.googleusercontent.com',
+    iosClientId:
+        '698277792074-lcjk5aivr2nvv78a8tqcbh6r98lq3o09.apps.googleusercontent.com',
     iosBundleId: 'com.mania.emailClient',
   );
 }

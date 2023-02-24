@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../exceptions/app_exception.dart';
 import 'app_colors.dart';
+import 'app_styles.dart';
 
 class AppTheme extends InheritedWidget {
   final AppColors color;
+  final AppStyles style;
   const AppTheme({
     super.key,
     required this.color,
+    required this.style,
     required super.child,
   });
 
@@ -25,6 +28,10 @@ class AppTheme extends InheritedWidget {
 
   static AppColors appColor(BuildContext context) {
     return _of(context).color;
+  }
+
+  static AppStyles appStyle(BuildContext context) {
+    return _of(context).style;
   }
 
   @override

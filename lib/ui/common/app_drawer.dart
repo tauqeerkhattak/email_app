@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:universal_html/html.dart' as html;
 
+import '../../resources/constants.dart';
 import '../pages/home/home.dart';
 import '../pages/webview_page/webview_page.dart';
 import 'app_button.dart';
@@ -9,18 +12,37 @@ import 'app_button.dart';
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({Key? key}) : super(key: key);
 
-  void _onAddAccountPressed(BuildContext context, WidgetRef ref) {
+  Future<void> _onAddAccountPressed(BuildContext context, WidgetRef ref) async {
     ref.read(homeProvider.notifier).setLoading();
-    Navigator.push(
-      context,
-      CupertinoPageRoute(
-        builder: (context) => WebviewPage(
-          onAccessGranted: (code) async {
-            await _onAccessGranted(code, ref);
-          },
+    if (kIsWeb) {
+      await _openForWeb(ref);
+    } else {
+      Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (context) => WebviewPage(
+            onAccessGranted: (code) async {
+              await _onAccessGranted(code, ref);
+            },
+          ),
         ),
-      ),
-    );
+      );
+    }
+  }
+
+  Future<void> _openForWeb(WidgetRef ref) async {
+    final uri = Constants.getGoogleUri();
+    final window = html.window.open(uri.toString(), 'Google Auth');
+    final event = await html.window.onMessage.first;
+    if (event.data != null) {
+      final receivedUri = Uri.parse(event.data);
+
+      final accessToken = receivedUri.queryParameters['accountId'];
+      if (accessToken != null) {
+        window?.close();
+        await _onAccessGranted(accessToken, ref);
+      }
+    }
   }
 
   Future<void> _onAccessGranted(String authCode, WidgetRef ref) async {

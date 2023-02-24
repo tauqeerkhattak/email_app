@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:email_client/ui/pages/auth/notifiers/auth_states.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -5,8 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../common/app_button.dart';
 import '../../common/app_text_field.dart';
+import '../../common/text_with_action.dart';
 import '../../common/validators.dart';
 import '../home/home.dart';
+import 'login_page.dart';
 import 'notifiers/auth_notifier.dart';
 
 final authProvider = StateNotifierProvider.autoDispose<AuthNotifier, AuthState>(
@@ -26,33 +30,15 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
 
-  @override
-  initState() {
-    super.initState();
-    ref.listen(
-      authProvider,
-      (previous, next) {
-        if (next is ErrorAuthState) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(next.error),
-            ),
-          );
-        } else if (next is RegisteredAuthState) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            CupertinoPageRoute(
-              builder: (context) => const Home(),
-            ),
-            (route) => false,
-          );
-        }
-      },
-    );
-  }
+  // @override
+  // initState() {
+  //   super.initState();
+  //
+  // }
 
   Future<void> _onRegister(WidgetRef ref) async {
-    if (formKey.currentState!.validate()) {
+    if (!formKey.currentState!.validate()) {
+      log('Not validated!');
       return;
     } else {
       final email = emailController.text;
@@ -76,6 +62,26 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(
+      authProvider,
+      (previous, next) {
+        if (next is ErrorAuthState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(next.error),
+            ),
+          );
+        } else if (next is RegisteredAuthState) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            CupertinoPageRoute(
+              builder: (context) => const Home(),
+            ),
+            (route) => false,
+          );
+        }
+      },
+    );
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(
@@ -121,6 +127,23 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     onTap: () => _onRegister(ref),
                     label: 'Register',
                     loading: state is LoadingAuthState,
+                  );
+                },
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              TextWithAction(
+                label: 'Already have an account? ',
+                actionLabel: 'Login',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const LoginPage();
+                      },
+                    ),
                   );
                 },
               ),

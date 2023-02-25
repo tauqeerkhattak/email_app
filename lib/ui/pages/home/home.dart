@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../models/messages_model.dart';
 import '../../common/app_drawer.dart';
 import '../../theme/app_theme.dart';
+import '../mail/mail_page.dart';
 import 'notifiers/home_page_notifier.dart';
 import 'notifiers/home_page_states.dart';
 
@@ -107,12 +108,27 @@ class _HomeState extends ConsumerState<Home> {
       child: Card(
         elevation: 10.0,
         child: ListTile(
-          onTap: () {
-            log('THREAD ID: ${message.threadId}');
-          },
+          onTap: () => _onMessageTap(message),
           title: Text('ID: ${message.id}'),
         ),
       ),
     );
+  }
+
+  void _onMessageTap(Messages message) {
+    if (message.id != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) {
+            return MailPage(
+              mailId: message.id!,
+            );
+          },
+        ),
+      );
+    } else {
+      log('Message id is null!');
+    }
   }
 }

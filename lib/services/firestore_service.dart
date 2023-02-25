@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_client/exceptions/app_exception.dart';
 import 'package:email_client/models/access_token.dart';
@@ -33,6 +35,17 @@ class FirebaseService extends BaseService {
     }
   }
 
+  Future<void> loginUser({
+    required String email,
+    required String password,
+  }) async {
+    final user = await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    log('User: ${user.user?.email}');
+  }
+
   Future<void> saveAccount({required AccessToken token}) async {
     await safeFunction(() async {
       final doc = _db
@@ -59,7 +72,7 @@ class FirebaseService extends BaseService {
   }
 
   Future<AccessToken?> getAccessToken() async {
-    return await safeActionWithValue(() async {
+    return await safeActionWithValue<AccessToken?>(() async {
       final query = await _db
           .collection('users')
           .doc(_auth.currentUser!.uid)

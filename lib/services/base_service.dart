@@ -8,20 +8,32 @@ class BaseService<T> {
     try {
       callback.call();
     } on FirebaseException catch (e) {
-      log('Error: ${e.message}');
-    } catch (e) {
-      log('Error: $e');
+      log(
+        'FirebaseError: ${e.message}',
+        stackTrace: e.stackTrace,
+      );
+    } catch (e, stack) {
+      log(
+        'Error: $e',
+        stackTrace: stack,
+      );
     }
   }
 
-  Future<T?> safeActionWithValue(AsyncValueGetter<T> callback) async {
+  Future<T?> safeActionWithValue<A>(AsyncValueGetter<T> callback) async {
     try {
       return await callback();
     } on FirebaseException catch (e) {
-      log('Error: ${e.message}');
+      log(
+        'FirebaseError: ${e.message}',
+        stackTrace: e.stackTrace,
+      );
       return null;
-    } catch (e) {
-      log('Error: $e');
+    } catch (e, stack) {
+      log(
+        'Error: $e',
+        stackTrace: stack,
+      );
       return null;
     }
   }

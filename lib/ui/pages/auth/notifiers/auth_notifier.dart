@@ -28,4 +28,18 @@ class AuthNotifier extends BaseNotifier<AuthState> {
       state = RegisteredAuthState();
     });
   }
+
+  Future<void> loginUser({
+    required String email,
+    required String password,
+  }) async {
+    await safeAction(() async {
+      state = LoadingAuthState();
+      await firebaseService.loginUser(
+        email: email,
+        password: password,
+      );
+      state = LoginAuthState();
+    });
+  }
 }

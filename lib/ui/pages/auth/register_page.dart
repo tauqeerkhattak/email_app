@@ -10,7 +10,6 @@ import '../../common/app_text_field.dart';
 import '../../common/text_with_action.dart';
 import '../../common/validators.dart';
 import '../home/home.dart';
-import 'login_page.dart';
 import 'notifiers/auth_notifier.dart';
 
 final authProvider = StateNotifierProvider.autoDispose<AuthNotifier, AuthState>(
@@ -137,14 +136,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 label: 'Already have an account? ',
                 actionLabel: 'Login',
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return const LoginPage();
-                      },
-                    ),
-                  );
+                  Navigator.pop(context);
                 },
               ),
             ],

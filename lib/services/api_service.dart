@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:email_client/exceptions/app_exception.dart';
 import 'package:email_client/resources/constants.dart';
 import 'package:email_client/services/base_service.dart';
 import 'package:email_client/services/firestore_service.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/access_token.dart';
+import '../models/mail_model.dart';
 import '../models/messages_model.dart';
 import '../resources/api_constants.dart';
 import 'service_locator.dart';
@@ -37,35 +39,32 @@ class ApiService extends BaseService {
   }
 
   Future<AccessToken> refreshToken({required AccessToken token}) async {
-    return await safeActionWithValue(
-      () async {
-        final uri = Uri.parse(ApiConstants.tokenEndpoint);
-        final body = {
-          'client_id': Constants.googleClientId,
-          'client_secret': Constants.googleClientSecret,
-          'grant_type': 'refresh_token',
-          'refresh_token': token.refreshToken,
-        };
-        final response = await http.post(
-          uri,
-          body: body,
-        );
-        final json = jsonDecode(response.body);
-        AccessToken updatedToken = AccessToken.fromJson(json);
-        updatedToken.uid = token.uid;
-        await firebaseService.updateToken(
-          updatedToken,
-        );
-        return updatedToken;
-      },
+    final uri = Uri.parse(ApiConstants.tokenEndpoint);
+    final body = {
+      'client_id': Constants.googleClientId,
+      'client_secret': Constants.googleClientSecret,
+      'grant_type': 'refresh_token',
+      'refresh_token': token.refreshToken,
+    };
+    log('Body: $body');
+    final response = await http.post(
+      uri,
+      body: body,
     );
+    log('Rew: ${response.body}');
+    final json = jsonDecode(response.body);
+    AccessToken updatedToken = AccessToken.fromJson(json);
+    updatedToken.uid = token.uid;
+    await firebaseService.updateToken(
+      updatedToken,
+    );
+    return updatedToken;
   }
 
   Future<MessageModel?> loadEmails() async {
     return await safeActionWithValue(
       () async {
         AccessToken? accessToken = await firebaseService.getAccessToken();
-        log('ACCESS: ${accessToken?.expiresIn}');
         if (accessToken != null) {
           if (accessToken.isExpired) {
             accessToken = await refreshToken(token: accessToken);
@@ -86,5 +85,27 @@ class ApiService extends BaseService {
         }
       },
     );
+  }
+
+  Future<MailModel> loadMail(String mailId) async {
+    AccessToken? accessToken = await firebaseService.getAccessToken();
+    if (accessToken != null) {
+      if (accessToken.isExpired) {
+        accessToken = await refreshToken(token: accessToken);
+      }
+      final uri = Uri.parse('${ApiConstants.gmailEndpoint}/$mailId');
+      final headers = {
+        'Authorization': 'Bearer ${accessToken.accessToken}',
+      };
+      final response = await http.get(
+        uri,
+        headers: headers,
+      );
+      final rawJson = response.body;
+      final mailModel = MailModel.fromRawJson(rawJson);
+      return mailModel;
+    } else {
+      throw AppException(message: 'Access token is null!');
+    }
   }
 }

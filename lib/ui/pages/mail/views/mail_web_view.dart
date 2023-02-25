@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class MailWebView extends StatefulWidget {
   final String html;
@@ -13,20 +13,18 @@ class MailWebView extends StatefulWidget {
 }
 
 class _MailWebViewState extends State<MailWebView> {
-  late WebViewController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = WebViewController();
-    _controller.loadHtmlString(widget.html);
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: WebViewWidget(
-        controller: _controller,
+      child: InAppWebView(
+        initialOptions: InAppWebViewGroupOptions(
+          crossPlatform: InAppWebViewOptions(
+            preferredContentMode: UserPreferredContentMode.MOBILE,
+          ),
+        ),
+        initialData: InAppWebViewInitialData(
+          data: widget.html,
+        ),
       ),
     );
   }

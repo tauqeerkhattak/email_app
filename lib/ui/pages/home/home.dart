@@ -109,7 +109,7 @@ class _HomeState extends ConsumerState<Home> {
         elevation: 10.0,
         child: ListTile(
           onTap: () => _onMessageTap(message),
-          title: Text('ID: ${message.id}'),
+          title: Text('${message.subject}'),
         ),
       ),
     );

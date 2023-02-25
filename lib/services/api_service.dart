@@ -8,6 +8,7 @@ import 'package:email_client/services/firestore_service.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/access_token.dart';
+import '../models/enums/mail_format.dart';
 import '../models/mail_model.dart';
 import '../models/messages_model.dart';
 import '../resources/api_constants.dart';
@@ -46,12 +47,10 @@ class ApiService extends BaseService {
       'grant_type': 'refresh_token',
       'refresh_token': token.refreshToken,
     };
-    log('Body: $body');
     final response = await http.post(
       uri,
       body: body,
     );
-    log('Rew: ${response.body}');
     final json = jsonDecode(response.body);
     AccessToken updatedToken = AccessToken.fromJson(json);
     updatedToken.uid = token.uid;
@@ -78,7 +77,24 @@ class ApiService extends BaseService {
             headers: headers,
           );
           final json = jsonDecode(response.body);
-          return MessageModel.fromJson(json);
+          final message = MessageModel.fromJson(json);
+          for (int i = 0; i < (message.messages?.length ?? 0); i++) {
+            final id = message.messages?[i].id;
+            if (id != null) {
+              final mail = await loadMail(id, MailFormat.metadata, 'Subject');
+              final headers = mail.payload?.headers?.where((element) {
+                    return element.name == 'Subject';
+                  }) ??
+                  [];
+              if (headers.isNotEmpty) {
+                log('Subject: ${headers.first.value}');
+                message.messages?[i].subject = headers.first.value;
+              } else {
+                log('No subject!');
+              }
+            }
+          }
+          return message;
         } else {
           log('No account found!');
           return null;
@@ -87,13 +103,18 @@ class ApiService extends BaseService {
     );
   }
 
-  Future<MailModel> loadMail(String mailId) async {
+  Future<MailModel> loadMail(String mailId,
+      [MailFormat format = MailFormat.full, String? metadataHeaders]) async {
     AccessToken? accessToken = await firebaseService.getAccessToken();
     if (accessToken != null) {
       if (accessToken.isExpired) {
         accessToken = await refreshToken(token: accessToken);
       }
-      final uri = Uri.parse('${ApiConstants.gmailEndpoint}/$mailId');
+      String query = '$mailId?format=${format.name}&';
+      if (metadataHeaders != null) {
+        query += 'metadataHeaders=$metadataHeaders';
+      }
+      final uri = Uri.parse('${ApiConstants.gmailEndpoint}/$query');
       final headers = {
         'Authorization': 'Bearer ${accessToken.accessToken}',
       };

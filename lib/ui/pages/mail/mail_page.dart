@@ -66,9 +66,14 @@ class _MailPageState extends ConsumerState<MailPage> {
   }
 
   Widget _buildMail(MailModel mail) {
-    return MailWebView(
-      html: mail.payload.parts.last.body.data,
-    );
+    final data = mail.payload?.parts?.last.body?.data ?? '';
+    if (data.isNotEmpty) {
+      return MailWebView(
+        html: data,
+      );
+    } else {
+      return const Text('No data!');
+    }
   }
 
   Widget _buildError() {

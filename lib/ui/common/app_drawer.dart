@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:universal_html/html.dart' as html;
 
+import '../../models/user_model.dart';
 import '../../resources/constants.dart';
+import '../../services/firestore_service.dart';
+import '../../services/service_locator.dart';
 import '../pages/home/home.dart';
 import '../pages/webview_page/webview_page.dart';
+import '../theme/app_theme.dart';
 import 'app_button.dart';
 
 class AppDrawer extends ConsumerWidget {
@@ -53,6 +57,7 @@ class AppDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final size = MediaQuery.of(context).size;
     return SafeArea(
+      key: const PageStorageKey('Drawer'),
       child: PhysicalModel(
         color: Colors.white,
         elevation: 8.0,
@@ -74,6 +79,8 @@ class AppDrawer extends ConsumerWidget {
             padding: const EdgeInsets.all(9.0),
             child: Column(
               children: [
+                _buildName(),
+                const Spacer(),
                 _buildAddAccountButton(context, ref),
               ],
             ),
@@ -87,6 +94,35 @@ class AppDrawer extends ConsumerWidget {
     return AppButton(
       onTap: () => _onAddAccountPressed(context, ref),
       label: 'Add account',
+    );
+  }
+
+  Widget _buildName() {
+    return FutureBuilder<UserModel?>(
+      future: serviceGetter<FirebaseService>().getCurrentUser(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return ListTile(
+            title: Center(
+              child: Text(
+                snapshot.data!.name,
+                style: TextStyle(
+                  color: AppTheme.appColor(context).primary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 25,
+                ),
+              ),
+            ),
+            subtitle: Center(
+              child: Text(
+                snapshot.data!.email,
+              ),
+            ),
+          );
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
     );
   }
 }

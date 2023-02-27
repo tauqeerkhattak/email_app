@@ -46,6 +46,13 @@ class FirebaseService extends BaseService {
     log('User: ${user.user?.email}');
   }
 
+  Future<UserModel?> getCurrentUser() async {
+    final uid = _auth.currentUser!.uid;
+    final doc = await _db.collection('users').doc(uid).get();
+    final data = doc.data();
+    return data != null ? UserModel.fromJson(data) : null;
+  }
+
   Future<void> saveAccount({required AccessToken token}) async {
     await safeFunction(() async {
       final doc = _db

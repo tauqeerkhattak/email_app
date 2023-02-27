@@ -78,22 +78,6 @@ class ApiService extends BaseService {
           );
           final json = jsonDecode(response.body);
           final message = MessageModel.fromJson(json);
-          for (int i = 0; i < (message.messages?.length ?? 0); i++) {
-            final id = message.messages?[i].id;
-            if (id != null) {
-              final mail = await loadMail(id, MailFormat.metadata, 'Subject');
-              final headers = mail.payload?.headers?.where((element) {
-                    return element.name == 'Subject';
-                  }) ??
-                  [];
-              if (headers.isNotEmpty) {
-                log('Subject: ${headers.first.value}');
-                message.messages?[i].subject = headers.first.value;
-              } else {
-                log('No subject!');
-              }
-            }
-          }
           return message;
         } else {
           log('No account found!');

@@ -34,25 +34,25 @@ class MessageModel {
 class Messages {
   String? id;
   String? threadId;
-  String? subject;
+  String? snippet;
 
   Messages({
     this.id,
     this.threadId,
-    this.subject,
+    this.snippet,
   });
 
   Messages.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     threadId = json['threadId'];
-    subject = json['subject'];
+    snippet = json['subject'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['threadId'] = threadId;
-    data['subject'] = subject;
+    data['snippet'] = snippet;
     return data;
   }
 }
